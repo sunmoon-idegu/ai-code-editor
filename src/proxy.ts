@@ -1,4 +1,15 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+
+// Below is another method to protect unauthorized access
+// It redirect the user if they are not logged in automatically.
+
+// const isPublicRoute = createRouteMatcher([
+//   "/api/inngest(.*)"
+// ]);
+
+// export default clerkMiddleware(async (auth, req) => {
+//   if (!isPublicRoute(req)) await auth.protect();
+// });
 
 export default clerkMiddleware();
 
