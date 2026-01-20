@@ -1,3 +1,6 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 reviews:
-  target_branches:
-    - "dev"
+  auto_review:
+    enabled: true
+    drafts: false
+  profile: "assertive"
