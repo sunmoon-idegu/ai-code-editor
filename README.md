@@ -39,3 +39,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - Design system: Shadcn
 - Authentication: Clerk
 - Real-time database: Convex
+- Background jobs: Inngest
+- URL scrapper: sFirecrawl AI
+- Error tracking: Sentry
