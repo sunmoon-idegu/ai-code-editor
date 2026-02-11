@@ -40,5 +40,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - Authentication: Clerk
 - Real-time database: Convex
 - Background jobs: Inngest
-- URL scrapper: sFirecrawl AI
+- URL scrapper: Firecrawl AI
 - Error tracking: Sentry
+- Packages: 
+  - react-symbols: file icons
+  - codemirror: code editor
+  - allotment: ide layout
+  - zustand: state management
+  - replit: minimap

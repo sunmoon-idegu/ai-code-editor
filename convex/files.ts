@@ -2,7 +2,7 @@ import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
 import { verifyAuth } from "./auth";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 
 export const getFiles = query({
   args: { projectId: v.id("projects") },
@@ -26,7 +26,7 @@ export const getFile = query({
   args: { id: v.id("files") },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    if (!identity) return [];
+    if (!identity) return null;
 
     const file = await ctx.db.get("files", args.id);
 
@@ -38,6 +38,48 @@ export const getFile = query({
       throw new Error("Unauthorized access to this file.");
 
     return file;
+  },
+});
+
+/**
+ * Builds the full path to a file
+ *
+ * Input: A file Id
+ * Output: Array of ancestors from root to file:
+ * [{ _id, name: "src" }, { _id, name: "components" }, { _id, name: "button.tsx" }]
+ *
+ * Used for Breadcrumbs navigation (src > components > button.tsx)
+ */
+export const getFilePath = query({
+  args: {
+    id: v.id("files"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await verifyAuth(ctx);
+    if (!identity) return null;
+
+    const file = await ctx.db.get("files", args.id);
+
+    if (!file) throw new Error("File not found");
+
+    const project = await ctx.db.get("projects", file.projectId);
+    if (!project) throw new Error("Project does not exist.");
+    if (project.ownerId !== identity.subject)
+      throw new Error("Unauthorized access to this file.");
+
+    const path: { _id: string; name: string }[] = [];
+    let currentId: Id<"files"> | undefined = args.id;
+
+    while (currentId) {
+      const file = (await ctx.db.get("files", currentId)) as
+        | Doc<"files">
+        | undefined;
+      if (!file) break;
+      path.unshift({ _id: file._id, name: file.name });
+      currentId = file.parentId;
+    }
+
+    return path;
   },
 });
 
@@ -81,7 +123,7 @@ export const createFile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    if (!identity) return [];
+    if (!identity) return ;
 
     const project = await ctx.db.get("projects", args.projectId);
     if (!project) throw new Error("Project does not exist.");
@@ -126,7 +168,7 @@ export const createFolder = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    if (!identity) return [];
+    if (!identity) return ;
 
     const project = await ctx.db.get("projects", args.projectId);
     if (!project) throw new Error("Project does not exist.");
