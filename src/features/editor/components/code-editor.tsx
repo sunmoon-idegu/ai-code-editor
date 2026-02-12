@@ -9,6 +9,7 @@ import { getLanguageExtension } from "../extensions/language-extension";
 import { minimap } from "../extensions/minimap";
 import { customSetup } from "../extensions/custom-setup";
 import { formatEditor } from "../extensions/format-editor";
+import { suggestion } from "../extensions/suggestion";
 
 interface CodeEditorProps {
   fileName: string;
@@ -35,6 +36,11 @@ export const CodeEditor = ({
       doc: initialValue,
       parent: editorRef.current,
       extensions: [
+        oneDark,
+        customTheme,
+        customSetup,
+        languageExtension,
+        suggestion(fileName),
         keymap.of([
           indentWithTab,
           {
@@ -47,10 +53,6 @@ export const CodeEditor = ({
             preventDefault: true,
           },
         ]),
-        oneDark,
-        customTheme,
-        customSetup,
-        languageExtension,
         minimap(),
         indentationMarkers(),
         EditorView.updateListener.of((update) => {
@@ -62,7 +64,7 @@ export const CodeEditor = ({
     viewRef.current = view;
 
     return () => view.destroy();
-  }, [languageExtension]);
+  }, [languageExtension, onChange]);
 
   return <div ref={editorRef} className="size-full pl-4 bg-background" />;
 };
