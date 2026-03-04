@@ -77,14 +77,14 @@ const generatePayload = (view: EditorView, fileName: string) => {
     nextLines.push(view.state.doc.line(currentLine.number + i).text);
   }
 
-//   console.log("fileName", fileName);
-//   console.log("code", fileName);
-  console.log("currentLine", currentLine.text);
-//   console.log("previousLines", previousLines);
-//   console.log("textBeforeCursor", currentLine.text.slice(0, cursorInLine));
-//   console.log("textAfterCursor", currentLine.text.slice(cursorInLine));
-//   console.log("nextLines", nextLines);
-//   console.log("lineNumber", currentLine.number);
+  // console.log("fileName", fileName);
+  // console.log("code", fileName);
+  // console.log("currentLine", currentLine.text);
+  // console.log("previousLines", previousLines);
+  // console.log("textBeforeCursor", currentLine.text.slice(0, cursorInLine));
+  // console.log("textAfterCursor", currentLine.text.slice(cursorInLine));
+  // console.log("nextLines", nextLines);
+  // console.log("lineNumber", currentLine.number);
 
   return {
     fileName,
