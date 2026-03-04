@@ -4,7 +4,8 @@ import { z } from "zod";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 
-import { SUGGESTION_PROMPT } from "./prompt";
+import { SUGGESTION_PROMPT } from "./prompts";
+import { auth } from "@clerk/nextjs/server";
 
 const suggestionSchema = z.object({
   suggestion: z
@@ -16,6 +17,9 @@ const suggestionSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const { userId } = await auth();
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     const {
       fileName,
       code,
@@ -25,7 +29,7 @@ export async function POST(request: Request) {
       textAfterCursor,
       nextLines,
       lineNumber,
-    } = request.json();
+    } = await request.json();
 
     if (!code) {
       return NextResponse.json({ error: "Code is required" }, { status: 400 });
@@ -40,11 +44,15 @@ export async function POST(request: Request) {
       .replace("{nextLines}", nextLines || "")
       .replace("{lineNumber}", lineNumber.toString());
 
+    // console.log("prompt", prompt);
+
     const { output } = await generateText({
-      model: anthropic("claude-3-7-sonnet-20250219"),
+      model: anthropic("claude-sonnet-4-5-20250929"),
       output: Output.object({ schema: suggestionSchema }),
       prompt,
     });
+
+    // console.log("***** OUTPUT *****", output);
 
     return NextResponse.json({ suggestion: output.suggestion });
   } catch (error) {

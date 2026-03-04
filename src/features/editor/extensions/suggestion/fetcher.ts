@@ -20,7 +20,7 @@ const suggestionResponseScheme = z.object({
 type SuggestionRequest = z.infer<typeof suggestionRequestSchema>;
 type SuggestionResponse = z.infer<typeof suggestionResponseScheme>;
 
-export const fetch = async (
+export const fetcher = async (
   payload: SuggestionRequest,
   signal: AbortSignal,
 ): Promise<string | null> => {

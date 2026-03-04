@@ -10,6 +10,8 @@ import { minimap } from "../extensions/minimap";
 import { customSetup } from "../extensions/custom-setup";
 import { formatEditor } from "../extensions/format-editor";
 import { suggestion } from "../extensions/suggestion";
+import { quickEdit } from "../extensions/quick-edit";
+import { selectionTooltip } from "../extensions/selsection-tooltip";
 
 interface CodeEditorProps {
   fileName: string;
@@ -41,30 +43,32 @@ export const CodeEditor = ({
         customSetup,
         languageExtension,
         suggestion(fileName),
+        quickEdit(fileName),
+        selectionTooltip(),
         keymap.of([
           indentWithTab,
-          {
-            key: "Ctrl-f", // VS Code 快捷鍵是 Alt-Shift-f, 但不知道為什麼會 failed
-            run: (view: EditorView) => {
-              // 觸發異步函數，但不等待它結束就回傳 true 表示指令已處理
-              formatEditor(view);
-              return true;
-            },
-            preventDefault: true,
-          },
+          // {
+          //   key: "Ctrl-f", // VS Code 快捷鍵是 Alt-Shift-f, 但不知道為什麼會 failed
+          //   run: (view: EditorView) => {
+          //     // 觸發異步函數，但不等待它結束就回傳 true 表示指令已處理
+          //     formatEditor(view);
+          //     return true;
+          //   },
+          //   preventDefault: true,
+          // },
         ]),
         minimap(),
         indentationMarkers(),
         EditorView.updateListener.of((update) => {
-          if(update.docChanged) onChange(update.state.doc.toString())
-        })
+          if (update.docChanged) onChange(update.state.doc.toString());
+        }),
       ],
     });
 
     viewRef.current = view;
 
     return () => view.destroy();
-  }, [languageExtension, onChange]);
+  }, [languageExtension]);
 
   return <div ref={editorRef} className="size-full pl-4 bg-background" />;
 };

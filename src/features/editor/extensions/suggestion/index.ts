@@ -9,6 +9,8 @@ import {
 } from "@codemirror/view";
 import { StateEffect, StateField } from "@codemirror/state";
 
+import { fetcher } from "./fetcher";
+
 // StateEffect: A way to send messages to update state.
 // We define one effect type for setting the suggestion text.
 const setSuggestionEffect = StateEffect.define<string | null>();
@@ -49,12 +51,51 @@ class SuggestionWidget extends WidgetType {
 
 let debounceTimer: number | null = null;
 let isWaitingForSuggestion = false;
-const DEBOUNCE_DELAY = 300;
+const DEBOUNCE_DELAY = 3000;
 
-const generateFakeSuggestion = (textBeforeCursor: string): string | null => {
-  const trimmed = textBeforeCursor.trimEnd();
-  if (trimmed.endsWith("const")) return " myVariable = ";
-  return null;
+let currentAbortController: AbortController | null = null;
+
+const generatePayload = (view: EditorView, fileName: string) => {
+  const code = view.state.doc.toString();
+  if (!code || code.trim().length === 0) return null;
+
+  const cursorPosition = view.state.selection.main.head;
+  const currentLine = view.state.doc.lineAt(cursorPosition);
+  const cursorInLine = cursorPosition - currentLine.from;
+
+  const previousLines: string[] = [];
+  const previousLinesToFetch = Math.min(5, currentLine.number - 1);
+  for (let i = previousLinesToFetch; i >= 1; i--) {
+    previousLines.push(view.state.doc.line(currentLine.number - i).text);
+  }
+
+  const nextLines: string[] = [];
+  const totalLines = view.state.doc.lines;
+  const linesToFetch = Math.min(5, totalLines - currentLine.number);
+
+  for (let i = 1; i <= linesToFetch; i++) {
+    nextLines.push(view.state.doc.line(currentLine.number + i).text);
+  }
+
+//   console.log("fileName", fileName);
+//   console.log("code", fileName);
+  console.log("currentLine", currentLine.text);
+//   console.log("previousLines", previousLines);
+//   console.log("textBeforeCursor", currentLine.text.slice(0, cursorInLine));
+//   console.log("textAfterCursor", currentLine.text.slice(cursorInLine));
+//   console.log("nextLines", nextLines);
+//   console.log("lineNumber", currentLine.number);
+
+  return {
+    fileName,
+    code,
+    currentLine: currentLine.text,
+    previousLines: previousLines.join("\n"),
+    textBeforeCursor: currentLine.text.slice(0, cursorInLine),
+    textAfterCursor: currentLine.text.slice(cursorInLine),
+    nextLines: nextLines.join("\n"),
+    lineNumber: currentLine.number,
+  };
 };
 
 const createDebouncePlugin = (fileName: string) => {
@@ -74,13 +115,28 @@ const createDebouncePlugin = (fileName: string) => {
         if (debounceTimer !== null) {
           clearTimeout(debounceTimer);
         }
+
+        if (currentAbortController !== null) {
+          currentAbortController.abort();
+        }
+
         isWaitingForSuggestion = true;
 
         debounceTimer = window.setTimeout(async () => {
-          const cursor = view.state.selection.main.head;
-          const line = view.state.doc.lineAt(cursor);
-          const textBeforeCursor = line.text.slice(0, cursor - line.from);
-          const suggestion = generateFakeSuggestion(textBeforeCursor);
+          const payload = generatePayload(view, fileName);
+          if (!payload) {
+            isWaitingForSuggestion = false;
+            view.dispatch({
+              effects: setSuggestionEffect.of(null),
+            });
+            return;
+          }
+          currentAbortController = new AbortController();
+
+          const suggestion = await fetcher(
+            payload,
+            currentAbortController.signal,
+          );
 
           isWaitingForSuggestion = false;
           view.dispatch({
@@ -91,6 +147,7 @@ const createDebouncePlugin = (fileName: string) => {
 
       destroy() {
         if (debounceTimer !== null) clearTimeout(debounceTimer);
+        if (currentAbortController !== null) currentAbortController.abort();
       }
     },
   );
@@ -104,16 +161,14 @@ const renderPlugin = ViewPlugin.fromClass(
       this.decorations = this.build(view);
     }
 
+    // Rebuild decorations if doc changed, cursor moved, or suggestion changed
     update(update: ViewUpdate) {
-      // Rebuild decorations if doc changed, cursor moved, or suggestion changed
-      const suggestionChanged = update.transactions.some((transaction) => {
-        return transaction.effects.some((effect) => {
-          return effect.is(setSuggestionEffect);
-        });
-      });
-
-      const shouldRebuild =
-        update.docChanged || update.selectionSet || suggestionChanged;
+      const docChanged = update.docChanged;
+      const cursorMoved = update.selectionSet;
+      const suggestionChanged = update.transactions.some((transaction) =>
+        transaction.effects.some((effect) => effect.is(setSuggestionEffect)),
+      );
+      const shouldRebuild = docChanged || cursorMoved || suggestionChanged;
 
       if (shouldRebuild) {
         this.decorations = this.build(update.view);
