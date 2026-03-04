@@ -19,26 +19,25 @@ const URL_REGEX = /https?:\/\/[^\s)>\]]+/g;
 
 export async function POST(request: Request) {
   try {
-    console.log("Hi");
     const { userId } = await auth();
     const { selectedCode, fullCode, instruction } = await request.json();
 
     if (!userId) {
-      return;
-      NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     if (!selectedCode) {
-      return;
-      NextResponse.json(
+      return NextResponse.json(
         { error: "Selected code is required" },
         { status: 400 },
       );
     }
 
     if (!instruction) {
-      return;
-      NextResponse.json({ error: "Instruction is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Instruction is required" },
+        { status: 400 },
+      );
     }
 
     const urls: string[] = instruction.match(URL_REGEX) || [];
@@ -72,7 +71,7 @@ export async function POST(request: Request) {
       .replace("{instruction}", instruction)
       .replace("{documentation}", documentationContext);
 
-    console.log("EDITED PROMPT", prompt);
+    // console.log("QUICK_EDIT_PROMPT", prompt);
 
     const { output } = await generateText({
       model: anthropic("claude-sonnet-4-5-20250929"),
@@ -82,7 +81,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ editedCode: output.editedCode });
   } catch (error) {
-    console.log(error);
     throw NextResponse.json(
       { error: "failed to generate edit" },
       { status: 500 },
