@@ -97,7 +97,7 @@ export const processMessage = inngest.createFunction(
         .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
         .join("\n\n");
 
-      systemPrompt.replace("{historyText}", historyText);
+      systemPrompt = systemPrompt.replace("{historyText}", historyText);
     }
 
     const shouldGenerateTitle =

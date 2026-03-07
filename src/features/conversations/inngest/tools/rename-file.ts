@@ -42,7 +42,7 @@ export const createRenameFileTool = ({
       }
 
       try {
-        return await toolStep?.run("update-file", async () => {
+        return await toolStep?.run("rename-file", async () => {
           await convex.mutation(api.system.renameFile, {
             internalKey,
             fileId: fileId as Id<"files">,

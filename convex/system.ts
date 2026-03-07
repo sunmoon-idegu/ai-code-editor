@@ -68,7 +68,7 @@ export const updateMessageContent = mutation({
 
     await ctx.db.patch("messages", args.messageId, {
       content: args.content,
-      status: "completed",
+      status: "completed" as const,
     });
   },
 });
@@ -125,7 +125,7 @@ export const getRecentMessages = query({
       .withIndex("by_conversation", (q) =>
         q.eq("conversationId", args.conversationId),
       )
-      .order("desc")
+      .order("asc")
       .collect();
 
     const limit = args.limit ?? 10;
@@ -208,7 +208,7 @@ export const createFile = mutation({
     projectId: v.id("projects"),
     name: v.string(),
     content: v.string(),
-    parentId: v.id("files"),
+    parentId: v.optional(v.id("files")),
   },
   handler: async (ctx, args) => {
     validateInternalKey(args.internalKey);
@@ -346,7 +346,7 @@ export const renameFile = mutation({
       )
       .collect();
 
-    const existing = siblings.some(
+    const existing = siblings.find(
       (s) =>
         s.name === args.newName &&
         s.type === file.type &&
@@ -386,7 +386,7 @@ export const deleteFile = mutation({
         const children = await ctx.db
           .query("files")
           .withIndex("by_project_parent", (q) =>
-            q.eq("projectId", item.projectId).eq("parentId", item.parentId),
+            q.eq("projectId", item.projectId).eq("parentId", currentFileId),
           )
           .collect();
 
@@ -396,7 +396,7 @@ export const deleteFile = mutation({
       }
 
       if (item.storageId) await ctx.storage.delete(item.storageId);
-      await ctx.db.delete("files", args.fileId);
+      await ctx.db.delete("files", currentFileId);
     };
 
     await deleteRecursive(args.fileId);
