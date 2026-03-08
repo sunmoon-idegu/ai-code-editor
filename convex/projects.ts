@@ -3,6 +3,29 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { verifyAuth } from "./auth";
 
+export const updateSettings = mutation({
+  args: {
+    id: v.id("projects"),
+    settings: v.object({
+      installCommand: v.optional(v.string()),
+      devCommand: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const identity = await verifyAuth(ctx);
+
+    const project = await ctx.db.get("projects", args.id);
+    if (!project) throw new Error("Project not found.");
+    if (project.ownerId !== identity.subject)
+      throw new Error("unauthorized access to this project.");
+
+    await ctx.db.patch("projects", args.id, {
+      settings: args.settings,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
 export const create = mutation({
   args: {
     name: v.string(),
@@ -54,13 +77,12 @@ export const getById = query({
   args: { id: v.id("projects") },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    
-    const project = await ctx.db.get("projects", args.id)
 
-    if (!project) 
-      throw new Error("Project not found.");
+    const project = await ctx.db.get("projects", args.id);
 
-    if (project.ownerId !== identity.subject) 
+    if (!project) throw new Error("Project not found.");
+
+    if (project.ownerId !== identity.subject)
       throw new Error("unauthorized access to this project.");
 
     return project;
@@ -71,18 +93,17 @@ export const rename = mutation({
   args: { id: v.id("projects"), name: v.string() },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    
-    const project = await ctx.db.get("projects", args.id)
 
-    if (!project) 
-      throw new Error("Project not found.");
+    const project = await ctx.db.get("projects", args.id);
 
-    if (project.ownerId !== identity.subject) 
+    if (!project) throw new Error("Project not found.");
+
+    if (project.ownerId !== identity.subject)
       throw new Error("unauthorized access to this project.");
 
     await ctx.db.patch("projects", args.id, {
       name: args.name,
-      updatedAt: Date.now()
-    })
+      updatedAt: Date.now(),
+    });
   },
 });
