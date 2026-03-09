@@ -22,6 +22,12 @@ export default defineSchema({
       ),
     ),
     exportRepoUrl: v.optional(v.string()),
+    settings: v.optional(
+      v.object({
+        installCommand: v.optional(v.string()),
+        devCommand: v.optional(v.string()),
+      }),
+    ),
   }).index("by_owner", ["ownerId"]),
 
   files: defineTable({
@@ -57,5 +63,5 @@ export default defineSchema({
     ),
   })
     .index("by_conversation", ["conversationId"])
-    .index("by_project_status", ["projectId", "status"])
+    .index("by_project_status", ["projectId", "status"]),
 });

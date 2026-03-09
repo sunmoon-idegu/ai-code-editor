@@ -50,3 +50,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - replit: minimap
   - ky: lightweight of axios
   - agent: inngest agent kit (https://agentkit.inngest.com/concepts/agents)
+  - Webcontainer (https://webcontainers.io/guides/introduction)
