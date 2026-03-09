@@ -82,7 +82,7 @@ export const importGithubRepo = inngest.createFunction(
       .filter((item) => item.type === "tree" && item.path)
       .sort((a, b) => {
         const aDepth = a.path ? a.path.split("/").length : 0;
-        const bDepth = a.path ? a.path.split("/").length : 0;
+        const bDepth = b.path ? b.path.split("/").length : 0;
         return aDepth - bDepth;
       });
 
