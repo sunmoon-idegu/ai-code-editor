@@ -17,6 +17,7 @@ import { Kbd } from "@/components/ui/kbd";
 import { ProjectsList } from "./projects-list";
 import { useCreateProject } from "../hooks/use-projects";
 import { ProjectsCommandDialogue } from "./projects-command-dialogue";
+import { ImportGithubDialog } from "./import-github-dialog";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export const ProjectsView = () => {
   const createProject = useCreateProject();
 
   const [commandDialogueOpen, setCommandDialogueOpen] = useState(false);
+  const [importGithubDialogOpen, setImportGithubDialogOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -34,6 +36,10 @@ export const ProjectsView = () => {
         if (e.key === "k") {
           e.preventDefault();
           setCommandDialogueOpen(true);
+        }
+        if (e.key === "i") {
+          e.preventDefault();
+          setImportGithubDialogOpen(true);
         }
       }
     };
@@ -47,6 +53,10 @@ export const ProjectsView = () => {
       <ProjectsCommandDialogue
         open={commandDialogueOpen}
         onOpenChange={setCommandDialogueOpen}
+      />
+      <ImportGithubDialog
+        open={importGithubDialogOpen}
+        onOpenChange={setImportGithubDialogOpen}
       />
       <div className="min-h-screen bg-sidebar flex flex-col items-center justify-center p-6 md:p-16">
         <div className="w-full max-w-md mx-auto flex flex-col gap-4 items-center">
@@ -96,7 +106,7 @@ export const ProjectsView = () => {
 
               <Button
                 variant="outline"
-                onClick={() => {}}
+                onClick={() => setImportGithubDialogOpen(true)}
                 className="h-full items-start justify-start p-4 
                 bg-background border flex flex-col gap-6 rounded-none"
               >
