@@ -3,10 +3,8 @@ import { WebContainer } from "@webcontainer/api";
 
 import { buildFileTree, getFilePath } from "../utils/file-tree";
 
-import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { useFiles } from "@/features/projects/hooks/use-files";
-import { WriteStream } from "fs";
 
 let webcontainerInstance: WebContainer | null = null;
 let bootPromise: Promise<WebContainer> | null = null;
@@ -165,7 +163,7 @@ export const useWebContainer = ({
     setStatus("idle");
     setPreviewUrl(null);
     setError(null);
-    setRestartKey;
+    setRestartKey((k) => k + 1);
   }, []);
 
   return {
