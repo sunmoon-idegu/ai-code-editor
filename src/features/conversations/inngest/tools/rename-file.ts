@@ -14,16 +14,22 @@ const paramsSchema = z.object({
   newName: z.string().min(1, "New name is required"),
 });
 
+const renameFilesToolDescription = `
+Rename a file or folder.
+`;
+
+const renameFilesToolParameters = z.object({
+  fileId: z.string().describe("The ID of the file to be updated."),
+  newName: z.string().describe("The new name for the file."),
+});
+
 export const createRenameFileTool = ({
   internalKey,
 }: RenameFileToolOptions) => {
   return createTool({
     name: "renameFile",
-    description: "Rename a file or folder",
-    parameters: z.object({
-      fileId: z.string().describe("The ID of the file to be updated."),
-      newName: z.string().describe("The new name for the file."),
-    }),
+    description: renameFilesToolDescription,
+    parameters: renameFilesToolParameters,
     handler: async (params, { step: toolStep }) => {
       const parsed = paramsSchema.safeParse(params);
       if (!parsed.success) return `Error ${parsed.error.issues[0].message}`;

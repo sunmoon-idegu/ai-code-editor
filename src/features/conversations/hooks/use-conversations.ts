@@ -10,13 +10,6 @@ export const useConversation = (conversationId: Id<"conversations"> | null) => {
   );
 };
 
-export const useMessages = (conversationId: Id<"conversations"> | null) => {
-  return useQuery(
-    api.conversations.getMessages,
-    conversationId ? { conversationId } : "skip",
-  );
-};
-
 export const useConversations = (projectId: Id<"projects"> | null) => {
   return useQuery(
     api.conversations.getByProject,
@@ -54,5 +47,12 @@ export const useCreateConversation = () => {
         );
       }
     },
+  );
+};
+
+export const useMessages = (conversationId: Id<"conversations"> | null) => {
+  return useQuery(
+    api.conversations.getMessages,
+    conversationId ? { conversationId } : "skip",
   );
 };

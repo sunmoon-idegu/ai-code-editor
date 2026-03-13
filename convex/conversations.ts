@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+
 import { mutation, query } from "./_generated/server";
 
 import { verifyAuth } from "./auth";
@@ -12,9 +13,8 @@ export const create = mutation({
     const identity = await verifyAuth(ctx);
 
     const project = await ctx.db.get("projects", args.projectId);
-    if (!project) throw new Error("Project not found.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("unauthorized access to this project.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     const conversationId = await ctx.db.insert("conversations", {
       projectId: args.projectId,
@@ -37,9 +37,8 @@ export const getById = query({
     if (!conversation) throw new Error("Conversation not found");
 
     const project = await ctx.db.get("projects", conversation.projectId);
-    if (!project) throw new Error("Project not found.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("unauthorized access to this project.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     return conversation;
   },
@@ -53,9 +52,8 @@ export const getByProject = query({
     const identity = await verifyAuth(ctx);
 
     const project = await ctx.db.get("projects", args.projectId);
-    if (!project) throw new Error("Project not found.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("unauthorized access to this project.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     const conversations = await ctx.db
       .query("conversations")
@@ -78,9 +76,8 @@ export const getMessages = query({
     if (!conversation) throw new Error("Conversation not found");
 
     const project = await ctx.db.get("projects", conversation.projectId);
-    if (!project) throw new Error("Project not found.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("unauthorized access to this project.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     const messages = await ctx.db
       .query("messages")

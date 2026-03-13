@@ -1,10 +1,11 @@
+import { z } from "zod";
+import { NextResponse } from "next/server";
 import { anthropic } from "@ai-sdk/anthropic";
 import { generateText, Output } from "ai";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
-import { firecrawl } from "@/lib/firecrawl";
 import { auth } from "@clerk/nextjs/server";
+import { firecrawl } from "@/lib/firecrawl";
+
 import { QUICK_EDIT_PROMPT } from "../suggestion/prompts";
 
 const quickEditSchema = z.object({
@@ -20,12 +21,11 @@ const URL_REGEX = /https?:\/\/[^\s)>\]]+/g;
 export async function POST(request: Request) {
   try {
     const { userId } = await auth();
-    const { selectedCode, fullCode, instruction } = await request.json();
-
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    const { selectedCode, fullCode, instruction } = await request.json();
     if (!selectedCode) {
       return NextResponse.json(
         { error: "Selected code is required" },
@@ -70,8 +70,6 @@ export async function POST(request: Request) {
       .replace("{fullCode}", fullCode || "")
       .replace("{instruction}", instruction)
       .replace("{documentation}", documentationContext);
-
-    // console.log("QUICK_EDIT_PROMPT", prompt);
 
     const { output } = await generateText({
       model: anthropic("claude-sonnet-4-5-20250929"),

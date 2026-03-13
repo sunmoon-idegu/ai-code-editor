@@ -15,9 +15,8 @@ export const updateSettings = mutation({
     const identity = await verifyAuth(ctx);
 
     const project = await ctx.db.get("projects", args.id);
-    if (!project) throw new Error("Project not found.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("unauthorized access to this project.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     await ctx.db.patch("projects", args.id, {
       settings: args.settings,
@@ -79,11 +78,8 @@ export const getById = query({
     const identity = await verifyAuth(ctx);
 
     const project = await ctx.db.get("projects", args.id);
-
-    if (!project) throw new Error("Project not found.");
-
-    if (project.ownerId !== identity.subject)
-      throw new Error("unauthorized access to this project.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     return project;
   },
@@ -95,11 +91,8 @@ export const rename = mutation({
     const identity = await verifyAuth(ctx);
 
     const project = await ctx.db.get("projects", args.id);
-
-    if (!project) throw new Error("Project not found.");
-
-    if (project.ownerId !== identity.subject)
-      throw new Error("unauthorized access to this project.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     await ctx.db.patch("projects", args.id, {
       name: args.name,

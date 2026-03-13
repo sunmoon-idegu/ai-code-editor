@@ -15,14 +15,19 @@ const paramsSchema = z.object({
     .min(1, "Please provide at least 1 file ID"),
 });
 
+const readFilesToolDescription = `
+Read the content of files from the project. Return file contents.
+`;
+
+const readFilesToolParameters = z.object({
+  fileIds: z.array(z.string()).describe("Array of file IDs to read"),
+});
+
 export const createReadFilesTool = ({ internalKey }: ReadFilesToolOptions) => {
   return createTool({
     name: "readFiles",
-    description:
-      "Read the content of files from the project. Return file contents.",
-    parameters: z.object({
-      fileIds: z.array(z.string()).describe("Array of file IDs to read"),
-    }),
+    description: readFilesToolDescription,
+    parameters: readFilesToolParameters,
     handler: async (params, { step: toolStep }) => {
       const parsed = paramsSchema.safeParse(params);
       if (!parsed.success) return `Error ${parsed.error.issues[0].message}`;

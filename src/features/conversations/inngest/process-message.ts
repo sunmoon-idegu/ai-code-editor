@@ -1,8 +1,9 @@
 import { NonRetriableError } from "inngest";
 import { createAgent, anthropic, createNetwork } from "@inngest/agent-kit";
-import { inngest } from "@/inngest/client";
 
+import { inngest } from "@/inngest/client";
 import { convex } from "@/lib/convex-client";
+
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 
@@ -10,6 +11,7 @@ import {
   CODEING_AGENT_SYSTEM_PROMPT,
   TITLE_GENERATOR_SYSTEM_PROMPT,
 } from "./constants";
+
 import { DEFAULT_CONVERSATION_TITLE } from "../constants";
 import { createReadFilesTool } from "./tools/read-files";
 import { createListFilesTool } from "./tools/list-files";
@@ -86,20 +88,6 @@ export const processMessage = inngest.createFunction(
       });
     });
 
-    let systemPrompt = CODEING_AGENT_SYSTEM_PROMPT;
-
-    // Filter out the current processing message and empty message
-    const contextMessages = recentMessages.filter(
-      (msg) => msg._id !== messageId && msg.content.trim() !== "",
-    );
-    if (contextMessages.length > 0) {
-      const historyText = contextMessages
-        .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-        .join("\n\n");
-
-      systemPrompt = systemPrompt.replace("{historyText}", historyText);
-    }
-
     const shouldGenerateTitle =
       conversation.title === DEFAULT_CONVERSATION_TITLE;
 
@@ -141,6 +129,19 @@ export const processMessage = inngest.createFunction(
       }
     }
 
+    let systemPrompt = CODEING_AGENT_SYSTEM_PROMPT;
+    // Filter out the current processing message and empty message
+    const contextMessages = recentMessages.filter(
+      (msg) => msg._id !== messageId && msg.content.trim() !== "",
+    );
+    if (contextMessages.length > 0) {
+      const historyText = contextMessages
+        .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+        .join("\n\n");
+
+      systemPrompt = systemPrompt.replace("{historyText}", historyText);
+    }
+
     // Create the coding agent with file tools
     const codingAgent = createAgent({
       name: "Yuming",
@@ -161,17 +162,25 @@ export const processMessage = inngest.createFunction(
         createCreateFolderTool({ projectId, internalKey }),
         createRenameFileTool({ internalKey }),
         createDeleteFilesTool({ internalKey }),
-        createScrapeUrlsTool()
+        createScrapeUrlsTool(),
       ],
     });
 
     // Create Network (from inngest agent kit) with single agent
+    // TODO: find a way to check network prompt
     const network = createNetwork({
       name: "Yuming-agent-network",
       agents: [codingAgent],
       maxIter: 20,
       router: ({ network }) => {
         const lastResult = network.state.results.at(-1);
+
+        console.log(`--- Iteration ${network.state.results.length} ---`);
+        console.log(
+          "Agent Output:",
+          JSON.stringify(lastResult?.output, null, 2),
+        );
+
         const hasTextResponse = lastResult?.output.some(
           (m) => m.type === "text" && m.role === "assistant",
         );

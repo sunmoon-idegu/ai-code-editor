@@ -189,7 +189,6 @@ export const updateFile = mutation({
     validateInternalKey(args.internalKey);
 
     const file = await ctx.db.get("files", args.fileId);
-
     if (!file) throw new Error("File not found");
 
     await ctx.db.patch("files", args.fileId, {
@@ -352,7 +351,6 @@ export const renameFile = mutation({
         s.type === file.type &&
         s._id !== args.fileId,
     );
-
     if (existing)
       throw new Error(`A ${file.type} named ${args.newName} already exists.`);
 

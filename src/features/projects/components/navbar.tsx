@@ -54,7 +54,6 @@ export const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    console.log(e.key, e.key === "Enter");
     if (e.key === "Enter") handleSubmit();
     else if (e.key === "Escape") setIsRenaming(false);
   };
@@ -115,7 +114,7 @@ export const Navbar = ({ projectId }: { projectId: Id<"projects"> }) => {
               <CloudCheckIcon className="size-4 text-muted-foreground" />
             </TooltipTrigger>
             <TooltipContent>
-              Save{" "}
+              Saved{" "}
               {project?.updatedAt
                 ? formatDistanceToNow(project.updatedAt, { addSuffix: true })
                 : "Something went wrong..."}

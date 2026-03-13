@@ -9,16 +9,16 @@ interface DeleteFilesToolOptions {
   internalKey: string;
 }
 
-const deleteFilesToolDescription = `
-Delete files or folders from the project. If deleting the folder,
-all contents will be deleted recursively.
-`;
-
 const paramsSchema = z.object({
   fileIds: z
     .array(z.string().min(1, "File ID can not be empty"))
     .min(1, "Provide at least one file to delete"),
 });
+
+const deleteFilesToolDescription = `
+Delete files or folders from the project. If deleting the folder,
+all contents will be deleted recursively.
+`;
 
 const deleteFilesToolParameters = z.object({
   fileIds: z

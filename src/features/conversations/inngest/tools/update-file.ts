@@ -14,16 +14,22 @@ const paramsSchema = z.object({
   content: z.string(),
 });
 
+const updateFileToolDescription = `
+Update the content of an existing file.
+`;
+
+const updateFileToolParameters = z.object({
+  fileId: z.string().describe("The ID of the file to be updated."),
+  content: z.string().describe("The new content for the file."),
+});
+
 export const createUpdateFileTool = ({
   internalKey,
 }: UpdateFileToolOptions) => {
   return createTool({
     name: "updateFile",
-    description: "Update the content of an existing file.",
-    parameters: z.object({
-      fileId: z.string().describe("The ID of the file to be updated."),
-      content: z.string().describe("The new content for the file."),
-    }),
+    description: updateFileToolDescription,
+    parameters: updateFileToolParameters,
     handler: async (params, { step: toolStep }) => {
       const parsed = paramsSchema.safeParse(params);
       if (!parsed.success) return `Error ${parsed.error.issues[0].message}`;

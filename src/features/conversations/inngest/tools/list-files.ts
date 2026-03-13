@@ -10,12 +10,15 @@ interface ListFilesToolOptions {
   internalKey: string;
 }
 
-const listFilesToolDescription =
-  "List all files and folders in the project. \
-  Return names, IDs, types, and parentId for each item. \
-  Items with parentId: null are at root level. \
-  Use the parentId to understand the folder structure - \
-  items with the same parentId are in the same folder";
+const listFilesToolDescription = `
+List all files and folders in the project. 
+Return names, IDs, types, and parentId for each item. 
+Items with parentId: null are at root level. 
+Use the parentId to understand the folder structure - 
+items with the same parentId are in the same folder.
+`;
+
+const listFilesToolParameters = z.object({});
 
 export const createListFilesTool = ({
   projectId,
@@ -24,7 +27,7 @@ export const createListFilesTool = ({
   return createTool({
     name: "listFiles",
     description: listFilesToolDescription,
-    parameters: z.object({}),
+    parameters: listFilesToolParameters,
     handler: async (params, { step: toolStep }) => {
       try {
         return await toolStep?.run("list-files", async () => {

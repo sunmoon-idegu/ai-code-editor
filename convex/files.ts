@@ -11,9 +11,8 @@ export const getFiles = query({
     if (!identity) return [];
 
     const project = await ctx.db.get("projects", args.projectId);
-    if (!project) throw new Error("Project does not exist.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("Unauthorized access to this file.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     return await ctx.db
       .query("files")
@@ -29,13 +28,11 @@ export const getFile = query({
     if (!identity) return null;
 
     const file = await ctx.db.get("files", args.id);
-
-    if (!file) throw new Error("File does not exist.");
+    if (!file) throw new Error("File not found");
 
     const project = await ctx.db.get("projects", file.projectId);
-    if (!project) throw new Error("Project does not exist.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("Unauthorized access to this file.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     return file;
   },
@@ -59,17 +56,15 @@ export const getFilePath = query({
     if (!identity) return null;
 
     const file = await ctx.db.get("files", args.id);
-
     if (!file) throw new Error("File not found");
 
     const project = await ctx.db.get("projects", file.projectId);
-    if (!project) throw new Error("Project does not exist.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("Unauthorized access to this file.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     const path: { _id: string; name: string }[] = [];
-    let currentId: Id<"files"> | undefined = args.id;
 
+    let currentId: Id<"files"> | undefined = args.id;
     while (currentId) {
       const file = (await ctx.db.get("files", currentId)) as
         | Doc<"files">
@@ -93,9 +88,8 @@ export const getFolderContents = query({
     if (!identity) return [];
 
     const project = await ctx.db.get("projects", args.projectId);
-    if (!project) throw new Error("Project does not exist.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("Unauthorized access to this file.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     const files = await ctx.db
       .query("files")
@@ -123,12 +117,11 @@ export const createFile = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    if (!identity) return ;
+    if (!identity) return;
 
     const project = await ctx.db.get("projects", args.projectId);
-    if (!project) throw new Error("Project does not exist.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("Unauthorized access to this file.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     const files = await ctx.db
       .query("files")
@@ -140,8 +133,7 @@ export const createFile = mutation({
     const existing = files.find(
       (file) => file.name === args.name && file.type === "file",
     );
-
-    if (existing) throw new Error("File already exists.");
+    if (existing) throw new Error("File already exists");
 
     const now = Date.now();
 
@@ -168,12 +160,11 @@ export const createFolder = mutation({
   },
   handler: async (ctx, args) => {
     const identity = await verifyAuth(ctx);
-    if (!identity) return ;
+    if (!identity) return;
 
     const project = await ctx.db.get("projects", args.projectId);
-    if (!project) throw new Error("Project does not exist.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("Unauthorized access to this file.");
+    if (!project) throw new Error("Projectnot found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     const files = await ctx.db
       .query("files")
@@ -185,8 +176,7 @@ export const createFolder = mutation({
     const existing = files.find(
       (file) => file.name === args.name && file.type === "folder",
     );
-
-    if (existing) throw new Error("Folder already exists.");
+    if (existing) throw new Error("Folder already exists");
 
     const now = Date.now();
 
@@ -216,9 +206,8 @@ export const renameFile = mutation({
     if (!file) throw new Error("File not found.");
 
     const project = await ctx.db.get("projects", file.projectId);
-    if (!project) throw new Error("Project does not exist.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("Unauthorized access to this file.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     const siblings = await ctx.db
       .query("files")
@@ -235,7 +224,7 @@ export const renameFile = mutation({
     );
 
     if (existing)
-      throw new Error(`A ${file.type} with this name already exists.`);
+      throw new Error(`A ${file.type} with this name already exists`);
 
     const now = Date.now();
 
@@ -258,12 +247,11 @@ export const deleteFile = mutation({
     const identity = await verifyAuth(ctx);
 
     const file = await ctx.db.get("files", args.id);
-    if (!file) throw new Error("File not found.");
+    if (!file) throw new Error("File not found");
 
     const project = await ctx.db.get("projects", file.projectId);
-    if (!project) throw new Error("Project does not exist.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("Unauthorized access to this file.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     // Recursively delete files
     const deleteRecursive = async (fileId: Id<"files">) => {
@@ -305,12 +293,11 @@ export const updateFile = mutation({
     const identity = await verifyAuth(ctx);
 
     const file = await ctx.db.get("files", args.id);
-    if (!file) throw new Error("File not found.");
+    if (!file) throw new Error("File not found");
 
     const project = await ctx.db.get("projects", file.projectId);
-    if (!project) throw new Error("Project does not exist.");
-    if (project.ownerId !== identity.subject)
-      throw new Error("Unauthorized access to this file.");
+    if (!project) throw new Error("Project not found");
+    if (project.ownerId !== identity.subject) throw new Error("Access denied");
 
     const now = Date.now();
 

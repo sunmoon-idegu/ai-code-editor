@@ -2,17 +2,17 @@ import { z } from "zod";
 import { createTool } from "@inngest/agent-kit";
 import { firecrawl } from "@/lib/firecrawl";
 
-const scrapeUrlsToolDescription = `
-Scrape content from URLs to get documentation or reference material.
-Use this when the user provides URLs or references external documentation.
-Returns markdown content from the scraped pages.
-`;
-
 const paramsSchema = z.object({
   urls: z
     .array(z.url("Invalid URL format"))
     .min(1, "Provide at least one URL to scrape"),
 });
+
+const scrapeUrlsToolDescription = `
+Scrape content from URLs to get documentation or reference material.
+Use this when the user provides URLs or references external documentation.
+Returns markdown content from the scraped pages.
+`;
 
 const scrapeUrlsToolParameters = z.object({
   urls: z.array(z.string()).describe("Array of URLs to scrape for content"),
