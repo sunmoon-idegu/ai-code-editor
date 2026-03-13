@@ -10,14 +10,14 @@ interface CreateFolderToolOptions {
   internalKey: string;
 }
 
-const createFolderToolDescription = `
-Create a new folder in the project.
-`;
-
 const paramsSchema = z.object({
   name: z.string().min(1, "Folder name is required"),
   parentId: z.string(),
 });
+
+const createFolderToolDescription = `
+Create a new folder in the project.
+`;
 
 const createFolderToolParameters = z.object({
   name: z.string().describe("The name of the folder to create"),

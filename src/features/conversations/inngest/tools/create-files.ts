@@ -1,4 +1,4 @@
-import { file, z } from "zod";
+import { z } from "zod";
 import { createTool } from "@inngest/agent-kit";
 import { convex } from "@/lib/convex-client";
 
@@ -9,12 +9,6 @@ interface CreateFilesToolOptions {
   projectId: Id<"projects">;
   internalKey: string;
 }
-
-const createFilesToolDescription = `
-Create multiple files at once in the same folder. Use this to batch 
-create files that share the same parent folder. More efficient than
-creating files one by one.
-`;
 
 const paramsSchema = z.object({
   parentId: z.string(),
@@ -27,6 +21,12 @@ const paramsSchema = z.object({
     )
     .min(1, "Provide at least one file to create"),
 });
+
+const createFilesToolDescription = `
+Create multiple files at once in the same folder. Use this to batch 
+create files that share the same parent folder. More efficient than
+creating files one by one.
+`;
 
 const createFilesToolParameters = z.object({
   parentId: z
@@ -61,7 +61,7 @@ export const createCreateFilesTool = ({
       try {
         return await toolStep?.run("create-files", async () => {
           let resolvedParentId: Id<"files"> | undefined;
-          
+
           if (parentId && parentId !== "") {
             try {
               resolvedParentId = parentId as Id<"files">;

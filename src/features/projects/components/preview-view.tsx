@@ -23,8 +23,6 @@ export const PreviewView = ({ projectId }: { projectId: Id<"projects"> }) => {
   const project = useProject(projectId);
   const [showTerminal, setShowTerminal] = useState(true);
 
-
-
   const { status, previewUrl, error, restart, terminalOutput } =
     useWebContainer({
       projectId,
@@ -122,7 +120,6 @@ export const PreviewView = ({ projectId }: { projectId: Id<"projects"> }) => {
                 </div>
                 <PreviewTerminal output={terminalOutput} />
               </div>
-              
             </Allotment.Pane>
           )}
         </Allotment>

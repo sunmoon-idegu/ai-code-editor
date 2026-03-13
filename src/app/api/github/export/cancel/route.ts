@@ -14,7 +14,6 @@ const requestSchema = z.object({
 
 export async function POST(request: Request) {
   const { userId } = await auth();
-
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
   const internalKey = process.env.PROJECT_CONVEX_INTERNAL_KEY;
   if (!internalKey) {
     return NextResponse.json(
-      { error: "Server configuration error." },
+      { error: "Server configuration error" },
       { status: 500 },
     );
   }

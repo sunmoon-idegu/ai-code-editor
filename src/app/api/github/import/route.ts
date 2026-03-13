@@ -20,7 +20,6 @@ function parseGithubUrl(url: string) {
 
 export async function POST(request: Request) {
   const { userId, has } = await auth();
-
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -32,7 +31,6 @@ export async function POST(request: Request) {
 
   const body = await request.json();
   const { url } = requestSchema.parse(body);
-
   const { owner, repo } = parseGithubUrl(url);
 
   const client = await clerkClient();
@@ -52,7 +50,7 @@ export async function POST(request: Request) {
   const internalKey = process.env.PROJECT_CONVEX_INTERNAL_KEY;
   if (!internalKey) {
     return NextResponse.json(
-      { error: "Server configuration error." },
+      { error: "Server configuration error" },
       { status: 500 },
     );
   }

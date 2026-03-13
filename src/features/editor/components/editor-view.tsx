@@ -1,14 +1,15 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import { AlertTriangleIcon } from "lucide-react";
 
-import { Id } from "../../../../convex/_generated/dataModel";
 import { useFile, useUpdateFile } from "@/features/projects/hooks/use-files";
 import { useEditor } from "../hooks/use-editor";
 
 import { CodeEditor } from "./code-editor";
 import { FileBreadcrums } from "./file-breadcurms";
 import { TopNavigation } from "./top-navigation";
-import { AlertTriangleIcon } from "lucide-react";
+
+import { Id } from "../../../../convex/_generated/dataModel";
 
 const DEBOUNCE_MS = 1500;
 
@@ -30,9 +31,7 @@ export const EditorView = ({ projectId }: { projectId: Id<"projects"> }) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center">
-        <TopNavigation projectId={projectId} />
-      </div>
+      <TopNavigation projectId={projectId} />
       {activeTabId && <FileBreadcrums projectId={projectId} />}
       <div className="flex-1 min-h-0 bg-background">
         {!activeFile && (
